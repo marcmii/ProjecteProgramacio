@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="sample.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1729"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="departments" custom_title="0" dock_id="1" table="4,11:maindepartments"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011300ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">-- ========================
+-- CREATE TABLES
+-- ========================
+
+-- Roles table
+CREATE TABLE roles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT
+);
+
+-- Departments table
+CREATE TABLE departments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
+
+-- Employees table
+CREATE TABLE employees (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    salary REAL,
+    department_id INTEGER,
+    role_id INTEGER,
+    FOREIGN KEY (department_id) REFERENCES departments(id),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
+-- ========================
+-- INSERT DATA
+-- ========================
+
+-- Departments
+INSERT INTO departments (name) VALUES 
+('Engineering'),
+('Human Resources'),
+('Marketing');
+
+-- Roles
+INSERT INTO roles (title, description) VALUES 
+('Software Engineer', 'Develops and maintains software applications.'),
+('HR Specialist', 'Manages employee relations and benefits.'),
+('Marketing Coordinator', 'Assists in marketing campaigns.'),
+('Team Lead', 'Leads a team of professionals.'),
+('Product Manager', 'Oversees product development and strategy.');
+
+-- Employees
+INSERT INTO employees (first_name, last_name, salary, department_id, role_id) VALUES
+('Alice', 'Smith', 72000, 1, 1),
+('Bob', 'Johnson', 68000, 1, 1),
+('Charlie', 'Williams', 75000, 1, 4),
+('Diana', 'Brown', 82000, 1, 5),
+('Evan', 'Jones', 70000, 1, 1),
+('Fiona', 'Garcia', 62000, 2, 2),
+('George', 'Martinez', 64000, 2, 2),
+('Hannah', 'Davis', 67000, 2, 4),
+('Ian', 'Lopez', 60000, 2, 2),
+('Julia', 'Gonzalez', 71000, 2, 5),
+('Kevin', 'Wilson', 55000, 3, 3),
+('Laura', 'Anderson', 58000, 3, 3),
+('Michael', 'Thomas', 60000, 3, 3),
+('Nina', 'Taylor', 66000, 3, 4),
+('Oliver', 'Moore', 70000, 3, 5),
+('Paula', 'Jackson', 73000, 1, 1),
+('Quentin', 'Martin', 69000, 1, 4),
+('Rachel', 'Lee', 65000, 2, 2),
+('Steve', 'Perez', 59000, 3, 3),
+('Tina', 'White', 62000, 1, 1);</sql><current_tab id="0"/></tab_sql></sqlb_project>
