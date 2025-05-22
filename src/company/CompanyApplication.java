@@ -70,7 +70,7 @@ public class CompanyApplication extends Application {
         controls.setAlignment(Pos.CENTER_LEFT);
         controls.setPadding(new Insets(5, 0, 5, 0));
 
-        root.getChildren().addAll(new Label("Empleats:"), employeeListView, controls);
+        root.getChildren().addAll(new Label("Empreses;"), employeeListView, controls);
 
         Scene scene = new Scene(root, 640, 480);
         primaryStage.setTitle("Simple Company Application");
