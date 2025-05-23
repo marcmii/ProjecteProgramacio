@@ -23,10 +23,10 @@ public class Main extends Application {
         // Comprovació de connexió a la base de dades SQLite abans de llançar JavaFX
         try (Connection conn = DBConnection.getConnection()) {
             if (conn != null) {
-                System.out.println("✅ Connexió a SQLite establerta correctament!");
+                System.out.println("Connexió a SQLite establerta correctament!");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error en connectar amb la base de dades SQLite:");
+            System.err.println("Error en connectar amb la base de dades SQLite:");
             e.printStackTrace();
         }
 

@@ -14,6 +14,7 @@ public class CompanyController {
     @FXML private TableView<Company> companyTable;
     @FXML private TableColumn<Company, String> colId, colName, colDescription, colDegreeId;
     @FXML private TextField txtId, txtName, txtDescription, txtDegreeId;
+    @FXML private ComboBox<String> degreeFilterComboBox;
 
     private ObservableList<Company> companyList = FXCollections.observableArrayList();
 
@@ -23,15 +24,34 @@ public class CompanyController {
         colName.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getName()));
         colDescription.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDescription()));
         colDegreeId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDegreeId()));
+        
+        degreeFilterComboBox.getItems().add("Tots");
+        degreeFilterComboBox.getItems().add("ASIX");
+        degreeFilterComboBox.getItems().add("DAM");
+        degreeFilterComboBox.getItems().add("DAW");
+        degreeFilterComboBox.getSelectionModel().selectFirst();
 
+        degreeFilterComboBox.setOnAction(event -> {
+            loadCompanies(); // recarrega aplicant el filtre
+        });
+
+        
+        
         loadCompanies();
     }
 
     private void loadCompanies() {
         companyList.clear();
+        String selectedDegree = degreeFilterComboBox.getValue();
+
+        String query = "SELECT * FROM Companies";
+        if (!"Tots".equals(selectedDegree)) {
+            query += " WHERE Degree_id = '" + selectedDegree + "'";
+        }
+
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM Companies")) {
+             ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
                 companyList.add(new Company(
@@ -49,10 +69,11 @@ public class CompanyController {
         }
     }
 
+
     @FXML
     private void addCompany() {
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("INSERT INTO Companies VALUES (?, ?, ?, '', ?)")) {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO Companies VALUES (?, ?, ?, '', ?)")) {
 
             ps.setString(1, txtId.getText());
             ps.setString(2, txtName.getText());
