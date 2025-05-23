@@ -5,11 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/Projecte_Marc_Jofre";
-    private static final String USER = "admin_user";
-    private static final String PASSWORD = "admin";
-
+    private static final String URL = "jdbc:sqlite:sample.db"; // nom del fitxer SQLite
+    
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return DriverManager.getConnection(URL);
     }
 }
