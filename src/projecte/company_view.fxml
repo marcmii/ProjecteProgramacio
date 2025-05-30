@@ -44,7 +44,9 @@
         <TextField fx:id="txtDegreeId" promptText="ID Grau" />
         <Button onAction="#addCompany" text="Afegir" />
         <Button onAction="#deleteCompany" text="Eliminar" />
+        <Button onAction="#updateCompany" text="Modificar" />
         
+ 
     </HBox>
 </bottom>
 

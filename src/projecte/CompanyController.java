@@ -18,48 +18,65 @@ public class CompanyController {
 
     private ObservableList<Company> companyList = FXCollections.observableArrayList();
 
+    
     @FXML
     public void initialize() {
         colId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getId()));
         colName.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getName()));
         colDescription.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDescription()));
         colDegreeId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDegreeId()));
-        
-        degreeFilterComboBox.getItems().add("Tots");
-        degreeFilterComboBox.getItems().add("ASIX");
-        degreeFilterComboBox.getItems().add("DAM");
-        degreeFilterComboBox.getItems().add("DAW");
+
+        degreeFilterComboBox.getItems().setAll("Tots", "DAM", "DAW", "ASIX");
         degreeFilterComboBox.getSelectionModel().selectFirst();
 
-        degreeFilterComboBox.setOnAction(event -> {
-            loadCompanies(); // recarrega aplicant el filtre
+        degreeFilterComboBox.setOnAction(event -> loadCompanies());
+
+        companyTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                txtId.setText(newSelection.getId());
+                txtName.setText(newSelection.getName());
+                txtDescription.setText(newSelection.getDescription());
+                txtDegreeId.setText(newSelection.getDegreeId());
+            }
         });
 
-        
-        
         loadCompanies();
     }
+
+
 
     private void loadCompanies() {
         companyList.clear();
         String selectedDegree = degreeFilterComboBox.getValue();
 
         String query = "SELECT * FROM Companies";
-        if (!"Tots".equals(selectedDegree)) {
-            query += " WHERE Degree_id = '" + selectedDegree + "'";
-        }
+        boolean hasFilter = !"Tots".equalsIgnoreCase(selectedDegree);
 
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             PreparedStatement ps = conn.prepareStatement(
+                     hasFilter ? query + " WHERE Degree_id = ?" : query)) {
 
-            while (rs.next()) {
-                companyList.add(new Company(
-                        rs.getString("Id"),
-                        rs.getString("Name"),
-                        rs.getString("Description"),
-                        rs.getString("Degree_id")
-                ));
+            if (hasFilter) {
+                String degreeId = "";
+                if ("DAM".equals(selectedDegree)) {
+                    degreeId = "001";
+                } else if ("DAW".equals(selectedDegree)) {
+                    degreeId = "002";
+                } else if ("ASIX".equals(selectedDegree)) {
+                    degreeId = "003";
+                }
+                ps.setString(1, degreeId);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    companyList.add(new Company(
+                            rs.getString("Id"),
+                            rs.getString("Name"),
+                            rs.getString("Description"),
+                            rs.getString("Degree_id")
+                    ));
+                }
             }
 
             companyTable.setItems(companyList);
@@ -68,6 +85,7 @@ public class CompanyController {
             e.printStackTrace();
         }
     }
+
 
 
     @FXML
@@ -145,6 +163,61 @@ public class CompanyController {
             }
         });
     }
+    
+    @FXML
+    private void updateCompany() {
+        String id = txtId.getText().trim();
+        String name = txtName.getText().trim();
+        String description = txtDescription.getText().trim();
+        String degreeId = txtDegreeId.getText().trim();
+
+        if (id.isEmpty() || name.isEmpty() || description.isEmpty() || degreeId.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Validació");
+            alert.setHeaderText("Tots els camps són obligatoris.");
+            alert.setContentText("Si us plau, omple tots els camps abans de modificar una empresa.");
+            alert.showAndWait();
+            return;
+        }
+
+        String sql = "UPDATE Companies SET Name = ?, Description = ?, Degree_id = ? WHERE Id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, name);
+            ps.setString(2, description);
+            ps.setString(3, degreeId);
+            ps.setString(4, id);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Modificació exitosa");
+                alert.setHeaderText(null);
+                alert.setContentText("Empresa modificada correctament.");
+                alert.showAndWait();
+
+                loadCompanies();  // recarrega la taula
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Modificació fallida");
+                alert.setHeaderText(null);
+                alert.setContentText("No s'ha trobat l'empresa per modificar.");
+                alert.showAndWait();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Base de Dades");
+            alert.setHeaderText("No s'ha pogut modificar l'empresa.");
+            alert.setContentText("Revisa la informació i torna-ho a provar.");
+            alert.showAndWait();
+        }
+    }
+
 
 
 }
