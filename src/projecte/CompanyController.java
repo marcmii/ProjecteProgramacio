@@ -106,5 +106,45 @@ public class CompanyController {
             alert.showAndWait();
         }
     }
+    
+    @FXML
+    private void deleteCompany() {
+        Company selectedCompany = companyTable.getSelectionModel().getSelectedItem();
+
+        if (selectedCompany == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cap selecció");
+            alert.setHeaderText("No s'ha seleccionat cap empresa");
+            alert.setContentText("Selecciona una empresa de la taula per eliminar-la.");
+            alert.showAndWait();
+            return;
+        }
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirmació d'eliminació");
+        confirmation.setHeaderText("Estàs segur que vols eliminar aquesta empresa?");
+        confirmation.setContentText("ID: " + selectedCompany.getId());
+
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement ps = conn.prepareStatement("DELETE FROM Companies WHERE Id = ?")) {
+
+                    ps.setString(1, selectedCompany.getId());
+                    ps.executeUpdate();
+                    loadCompanies();
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error de Base de Dades");
+                    alert.setHeaderText("No s'ha pogut eliminar l'empresa.");
+                    alert.setContentText("Torna-ho a intentar més tard.");
+                    alert.showAndWait();
+                }
+            }
+        });
+    }
+
 
 }
