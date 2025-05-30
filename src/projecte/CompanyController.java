@@ -72,18 +72,39 @@ public class CompanyController {
 
     @FXML
     private void addCompany() {
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO Companies VALUES (?, ?, ?, '', ?)")) {
+        String id = txtId.getText().trim();
+        String name = txtName.getText().trim();
+        String description = txtDescription.getText().trim();
+        String degreeId = txtDegreeId.getText().trim();
 
-            ps.setString(1, txtId.getText());
-            ps.setString(2, txtName.getText());
-            ps.setString(3, txtDescription.getText());
-            ps.setString(4, txtDegreeId.getText());
+        // Comprovació de camps buits
+        if (id.isEmpty() || name.isEmpty() || description.isEmpty() || degreeId.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Validació");
+            alert.setHeaderText("Tots els camps són obligatoris.");
+            alert.setContentText("Si us plau, omple tots els camps abans d'afegir una empresa.");
+            alert.showAndWait();
+            return; // No continua si hi ha errors
+        }
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO Companies VALUES (?, ?, ?, '', ?)")) {
+
+            ps.setString(1, id);
+            ps.setString(2, name);
+            ps.setString(3, description);
+            ps.setString(4, degreeId);
 
             ps.executeUpdate();
-            loadCompanies(); // Refresh table
+            loadCompanies(); // Actualitza la taula
         } catch (SQLException e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Base de Dades");
+            alert.setHeaderText("No s'ha pogut afegir l'empresa.");
+            alert.setContentText("Revisa la informació i torna-ho a provar.");
+            alert.showAndWait();
         }
     }
+
 }
